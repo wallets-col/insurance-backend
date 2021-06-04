@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  wallets
+
+  Sample SAM Template for wallets
+
+Parameters:
+  EnvironmentValue:
+    AllowedValues:
+      - dev
+      - prod
+    Description: Ambiente a desplegar
+    Type: String
+
+Mappings: 
+  Environments:
+    dev:
+      UserTable: insurance-user-table
+      PaymentsTable: insurance-payments-table
+      InsurersTable: insurance-insurers-table
+      LambdaBasePolicy: arn:aws:iam::aws:policy/AWSLambdaFullAccess
+      StageName: dev
+    prod:
+      UserTable: insurance-user-table
+      PaymentsTable: insurance-payments-table
+      InsurersTable: insurance-insurers-table
+      LambdaBasePolicy: arn:aws:iam::aws:policy/AWSLambdaFullAccess
+      StageName: dev
+
+Conditions:
+  CreateProdResources: !Equals [!Ref EnvironmentValue, dev]
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 180
+    MemorySize: 128
+    Runtime: python3.8
+    Handler: app.lambda_handler
+
+Resources:
+  InsuranceAWSHttpApiGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref EnvironmentValue
+      #Auth:
+      #  Authorizers:
+      #    FirebaseAuthorizer:
+      #      JwtConfiguration:
+      #        issuer: "https://securetoken.google.com/dev-tienditas"
+      #        audience:
+      #          - dev-tienditas
+      #      IdentitySource: "$request.header.Authorization"
+      #  DefaultAuthorizer: FirebaseAuthorizer
+      CorsConfiguration: True
+
+# USER
+  InsuranceCreateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: InsuranceCreateUserFunction
+      Description: Function that creates a user in dynamodb
+      Policies:
+        - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
+      Layers:
+        - !If [CreateProdResources, !FindInMap [Environments, prod, PythonLayer1], !FindInMap [Environments, dev, PythonLayer1] ]
+      CodeUri: user/v1/create_user
+      Environment:
+        Variables:
+          DYNAMODB_USER_TABLE: !If [CreateProdResources, !FindInMap [Environments, prod, UserTable], !FindInMap [Environments, dev, UserTable]]
+      Events:
+        CreateUserApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InsuranceAWSHttpApiGateway
+            Path: /api/v1/user
+            Method: post
+  InsuranceGetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: InsuranceGetUserFunction
+      Description: Function that get a user from dynamodb
+      Policies:
+        - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
+      CodeUri: user/v1/get_user
+      Environment:
+        Variables:
+          DYNAMODB_USER_TABLE: !If [CreateProdResources, !FindInMap [Environments, prod, UserTable], !FindInMap [Environments, dev, UserTable]]
+      Events:
+        GetUserApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InsuranceAWSHttpApiGateway
+            Path: /api/v1/user
+            Method: get
+
+# PAYMENTS
+  InsuranceCreatePaymentsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: InsuranceCreatePaymentsFunction
+      Description: Function that creates a payment in dynamodb
+      Policies:
+        - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
+      Layers:
+        - !If [CreateProdResources, !FindInMap [Environments, prod, PythonLayer1], !FindInMap [Environments, dev, PythonLayer1] ]
+      CodeUri: payments/v1/create_payments
+      Environment:
+        Variables:
+          DYNAMODB_PAYMENTS_TABLE: !If [CreateProdResources, !FindInMap [Environments, prod, PaymentsTable], !FindInMap [Environments, dev, PaymentsTable]]
+      Events:
+        CreatePaymentsApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InsuranceAWSHttpApiGateway
+            Path: /api/v1/payments
+            Method: post
+  InsuranceGetPaymentsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: InsuranceGetPaymentsFunction
+      Description: Function that get payments from dynamodb
+      Policies:
+        - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
+      CodeUri: payments/v1/get_payments
+      Environment:
+        Variables:
+          DYNAMODB_PAYMENTS_TABLE: !If [CreateProdResources, !FindInMap [Environments, prod, PaymentsTable], !FindInMap [Environments, dev, PaymentsTable]]
+      Events:
+        GetPaymentsApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InsuranceAWSHttpApiGateway
+            Path: /api/v1/payments
+            Method: get
