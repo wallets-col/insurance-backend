@@ -19,14 +19,16 @@ Mappings:
       UserTable: insurance-user-table
       PaymentsTable: insurance-payments-table
       InsurersTable: insurance-insurers-table
-      LambdaBasePolicy: arn:aws:iam::aws:policy/AWSLambdaFullAccess
+      LambdaBasePolicy: arn:aws:iam::166472935010:policy/AWSLambdaFullAccessCustom
       StageName: dev
+      PythonLayer1: arn:aws:lambda:us-east-1:166472935010:layer:PythonLayer1:1
     prod:
       UserTable: insurance-user-table
       PaymentsTable: insurance-payments-table
       InsurersTable: insurance-insurers-table
-      LambdaBasePolicy: arn:aws:iam::aws:policy/AWSLambdaFullAccess
+      LambdaBasePolicy: arn:aws:iam::166472935010:policy/AWSLambdaFullAccessCustom
       StageName: dev
+      PythonLayer1: arn:aws:lambda:us-east-1:166472935010:layer:PythonLayer1:1
 
 Conditions:
   CreateProdResources: !Equals [!Ref EnvironmentValue, dev]
@@ -167,3 +169,21 @@ Resources:
             ApiId: !Ref InsuranceAWSHttpApiGateway
             Path: /api/v1/payments
             Method: get
+  InsuranceDeletePaymentsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: InsuranceDeletePaymentsFunction
+      Description: Function that get payments
+      Policies:
+        - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
+      CodeUri: payments/v1/delete_payments
+      Environment:
+        Variables:
+          DYNAMODB_PAYMENTS_TABLE: !If [CreateProdResources, !FindInMap [Environments, prod, PaymentsTable], !FindInMap [Environments, dev, PaymentsTable]]
+      Events:
+        DeletePaymentsApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InsuranceAWSHttpApiGateway
+            Path: /api/v1/payments
+            Method: delete
