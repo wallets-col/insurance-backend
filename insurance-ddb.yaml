@@ -29,6 +29,7 @@ Resources:
           Projection:
             ProjectionType: INCLUDE
             NonKeyAttributes:
+              - id
               - name
               - creditCards
               - status
@@ -46,6 +47,7 @@ Resources:
           Projection:
             ProjectionType: INCLUDE
             NonKeyAttributes:
+              - id
               - email
               - name
               - creditCards

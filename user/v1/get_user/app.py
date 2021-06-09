@@ -16,7 +16,7 @@ def lambda_handler(event, context):
                 result = table.query(
                     Select = 'SPECIFIC_ATTRIBUTES',
                     KeyConditionExpression = Key('email').eq(email) & Key('clientEmail').eq(client_email),
-                    ProjectionExpression = 'email, clientEmail, #name, #date, #status, #type, apiKey, userCode',
+                    ProjectionExpression = 'email, clientEmail, #name, #date, #status, #type, apiKey, userCode, id',
                     ExpressionAttributeNames = {
                         "#name": "name",
                         "#date": "date",
@@ -36,7 +36,7 @@ def lambda_handler(event, context):
                     Select = 'SPECIFIC_ATTRIBUTES',
                     KeyConditionExpression = Key('clientEmail').eq(email),
                     IndexName = 'clientEmail-userEmail-index',
-                    ProjectionExpression = 'userEmail, clientEmail, #name, #date, #status, apiKey, userCode',
+                    ProjectionExpression = 'userEmail, clientEmail, #name, #date, #status, apiKey, userCode, id',
                     ExpressionAttributeNames = {
                         "#name": "name",
                         "#date": "date",

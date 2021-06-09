@@ -53,14 +53,29 @@ Resources:
       #          - dev-tienditas
       #      IdentitySource: "$request.header.Authorization"
       #  DefaultAuthorizer: FirebaseAuthorizer
-      CorsConfiguration: True
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - POST
+          - DELETE
+          - PUT
+          - OPTIONS
+          - PATCH
+        MaxAge: 0
+        AllowHeaders:
+          - Origin
+          - X-Requested-With
+          - Content-Type
+          - Accept
 
 # USER
   InsuranceCreateUserFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: InsuranceCreateUserFunction
-      Description: Function that creates a user in dynamodb
+      Description: Function that creates a user
       Policies:
         - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
       Layers:
@@ -80,7 +95,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: InsuranceGetUserFunction
-      Description: Function that get a user from dynamodb
+      Description: Function that get a user
       Policies:
         - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
       CodeUri: user/v1/get_user
@@ -94,13 +109,31 @@ Resources:
             ApiId: !Ref InsuranceAWSHttpApiGateway
             Path: /api/v1/user
             Method: get
+  InsuranceDeleteUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: InsuranceDeleteUserFunction
+      Description: Function that get a user
+      Policies:
+        - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
+      CodeUri: user/v1/delete_user
+      Environment:
+        Variables:
+          DYNAMODB_USER_TABLE: !If [CreateProdResources, !FindInMap [Environments, prod, UserTable], !FindInMap [Environments, dev, UserTable]]
+      Events:
+        DeleteUserApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InsuranceAWSHttpApiGateway
+            Path: /api/v1/user
+            Method: delete
 
 # PAYMENTS
   InsuranceCreatePaymentsFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: InsuranceCreatePaymentsFunction
-      Description: Function that creates a payment in dynamodb
+      Description: Function that creates a payment
       Policies:
         - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
       Layers:
@@ -120,7 +153,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: InsuranceGetPaymentsFunction
-      Description: Function that get payments from dynamodb
+      Description: Function that get payments
       Policies:
         - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
       CodeUri: payments/v1/get_payments
