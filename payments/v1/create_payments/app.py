@@ -3,6 +3,7 @@ import json
 import os
 import datetime
 import pytz
+import uuid
 
 dynamodb = boto3.resource('dynamodb')
 
@@ -14,9 +15,10 @@ def lambda_handler(event, context):
             get_date = datetime.datetime.now(pytz.timezone('UTC')).astimezone(pytz.timezone('America/Panama')).strftime("%Y-%m-%dT%H:%M:%S")
             payment = json.loads(event['body'])
             payment = payment['payment']
+            uuid_code = str(uuid.uuid4())
             item = {
                 'email': payment['email'],
-                'id': payment['id'],
+                'id': uuid_code,
                 'date': get_date,
                 'dueDate': payment['dueDate'],
                 'name': payment['name'],

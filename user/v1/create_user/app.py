@@ -3,6 +3,7 @@ import json
 import os
 import datetime
 import pytz
+import uuid
 
 dynamodb = boto3.resource('dynamodb')
 
