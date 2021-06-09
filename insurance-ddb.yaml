@@ -34,7 +34,6 @@ Resources:
               - creditCards
               - status
               - phoneNumber
-              - insurerEmail
           ProvisionedThroughput:
             ReadCapacityUnits: 0
             WriteCapacityUnits: 0
