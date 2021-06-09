@@ -10,38 +10,18 @@ def lambda_handler(event, context):
     print(event)
     if "queryStringParameters" in event:
         try:
-            if 'email' in event['queryStringParameters'] and 'clientEmail' in event['queryStringParameters']:
-                email = event['queryStringParameters']['email']
-                client_email = event['queryStringParameters']['clientEmail']
+            if 'brokerId' in event['queryStringParameters']:
+                broker_id = event['queryStringParameters']['brokerId']
                 result = table.query(
                     Select = 'SPECIFIC_ATTRIBUTES',
-                    KeyConditionExpression = Key('email').eq(email) & Key('clientEmail').eq(client_email),
-                    ProjectionExpression = 'email, clientEmail, #name, #date, #status, #type, apiKey, userCode, id',
+                    IndexName = 'type-brokerId-index',
+                    KeyConditionExpression = Key('type').eq('USER') & Key('brokerId').eq(broker_id),
+                    ProjectionExpression = '#type, brokerId, id, email, #name, creditCards, #status, phoneNumber,
                     ExpressionAttributeNames = {
                         "#name": "name",
-                        "#date": "date",
                         "#status": "status",
                         "#type": "type"
-                    },
-                )
-                response_body = {
-                    "statusCode": 200,
-                    "body": {
-                        "user": result['Items'][0]
                     }
-                }
-            elif 'clientEmail' in event['queryStringParameters']:
-                email = event['queryStringParameters']['clientEmail']
-                result = table.query(
-                    Select = 'SPECIFIC_ATTRIBUTES',
-                    KeyConditionExpression = Key('clientEmail').eq(email),
-                    IndexName = 'clientEmail-userEmail-index',
-                    ProjectionExpression = 'userEmail, clientEmail, #name, #date, #status, apiKey, userCode, id',
-                    ExpressionAttributeNames = {
-                        "#name": "name",
-                        "#date": "date",
-                        "#status": "status"
-                    },
                 )
                 response_body = {
                     "statusCode": 200,
@@ -49,11 +29,31 @@ def lambda_handler(event, context):
                         "users": result['Items']
                     }
                 }
+            elif 'email' in event['queryStringParameters'] and 'id' in event['queryStringParameters']:
+                email = event['queryStringParameters']['email']
+                user_id = event['queryStringParameters']['id']
+                result = table.query(
+                    KeyConditionExpression = Key('email').eq(email) & Key('id').eq(user_id)
+                )
+                if len(result['Items']) > 0:
+                    response_body = {
+                        "statusCode": 200,
+                        "body": {
+                            "user": result['Items'][0]
+                        }
+                    }
+                else:
+                    response_body = {
+                        "statusCode": 200,
+                        "body": {
+                            "message": f"no user found with email {email}"
+                        }
+                    }
             else:
                 response_body = {
                     "statusCode": 400,
                     "body": {
-                        "message": "missing userEmail or clientEmail"
+                        "message": "missing email"
                     }
                 }
         except Exception as ex:

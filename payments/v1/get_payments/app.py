@@ -30,21 +30,30 @@ def lambda_handler(event, context):
                 }
             elif 'email' in event['queryStringParameters'] and 'id' in event['queryStringParameters']:
                 email = event['queryStringParameters']['email']
+                payment_id = event['queryStringParameters']['id']
                 result = table.query(
                     Select = 'SPECIFIC_ATTRIBUTES',
-                    KeyConditionExpression = Key('email').eq(email) & Key('id').eq(event['queryStringParameters']['id']),
+                    KeyConditionExpression = Key('email').eq(email) & Key('id').eq(payment_id),
                     ProjectionExpression = 'email, id, #date, amount, #status, issuedBy, brokerEmail, details, dueDate, insurer',
                     ExpressionAttributeNames = {
                         "#date": "date",
                         "#status": "status"
                     },
                 )
-                response_body = {
-                    "statusCode": 200,
-                    "body": {
-                        "payment": result['Items'][0]
+                if len(result['Items']) > 0:
+                    response_body = {
+                        "statusCode": 200,
+                        "body": {
+                            "payment": result['Items'][0]
+                        }
                     }
-                }
+                else:
+                    response_body = {
+                        "statusCode": 200,
+                        "body": {
+                            "message": f"no payment found with id {payment_id} for user {email}"
+                        }
+                    }
             else:
                 response_body = {
                     "statusCode": 400,
