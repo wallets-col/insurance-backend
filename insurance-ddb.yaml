@@ -11,7 +11,7 @@ Resources:
           AttributeType: "S"
         - AttributeName: "type"
           AttributeType: "S"
-        - AttributeName: "insurerId"
+        - AttributeName: "brokerId"
           AttributeType: "S"
       KeySchema:
         - AttributeName: "email"
@@ -38,11 +38,11 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 0
             WriteCapacityUnits: 0
-        - IndexName: "type-insurerId-index"
+        - IndexName: "type-brokerId-index"
           KeySchema:
             - AttributeName: "type"
               KeyType: "HASH"
-            - AttributeName: "insurerId"
+            - AttributeName: "brokerId"
               KeyType: "RANGE"
           Projection:
             ProjectionType: INCLUDE

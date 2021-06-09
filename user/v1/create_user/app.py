@@ -26,7 +26,7 @@ def lambda_handler(event, context):
                     'apiKey': uuid_code,
                     'type': 'USER',
                     'phoneNumber': user['phoneNumber'],
-                    'insurerId': user['insurerId']
+                    'brokerId': user['brokerId']
                 }
             elif user['type'] == 'BROKER':
                 item = {
@@ -35,17 +35,7 @@ def lambda_handler(event, context):
                     'name': user['name'],
                     'date': get_date,
                     'status': 'ACTIVE',
-                    'type': 'USER',
-                    'insurerId': user['insurerId']
-                }
-            elif user['type'] == 'INSURER':
-                item = {
-                    'email': user['email'],
-                    'id': uuid_code[0:13],
-                    'date': get_date,
-                    'type': 'INSURER',
-                    'name': user['name'],
-                    'status': 'ACTIVE'
+                    'type': 'USER'
                 }
             else
             table.put_item(Item=item)
