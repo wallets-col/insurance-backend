@@ -28,6 +28,13 @@ def lambda_handler(event, context):
                     'phoneNumber': user['phoneNumber'],
                     'brokerId': user['brokerId']
                 }
+                table.put_item(Item=item)
+                response_body = {
+                    "statusCode": 200,
+                    "body": {
+                        "user": item
+                    }
+                }
             elif user['type'] == 'BROKER':
                 item = {
                     'email': user['email'],
@@ -37,14 +44,20 @@ def lambda_handler(event, context):
                     'status': 'ACTIVE',
                     'type': 'BROKER'
                 }
-            else
-            table.put_item(Item=item)
-            response_body = {
-                "statusCode": 200,
-                "body": {
-                    "user": item
+                table.put_item(Item=item)
+                response_body = {
+                    "statusCode": 200,
+                    "body": {
+                        "user": item
+                    }
                 }
-            }
+            else:
+                response_body = {
+                    "statusCode": 400,
+                    "body": {
+                        "message": "missing user"
+                    }
+                }
         except Exception as ex:
             print(ex)
             response_body = {
