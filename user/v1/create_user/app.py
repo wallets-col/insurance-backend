@@ -35,7 +35,7 @@ def lambda_handler(event, context):
                     'name': user['name'],
                     'date': get_date,
                     'status': 'ACTIVE',
-                    'type': 'USER'
+                    'type': 'BROKER'
                 }
             else
             table.put_item(Item=item)
