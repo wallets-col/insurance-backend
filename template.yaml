@@ -129,6 +129,24 @@ Resources:
             ApiId: !Ref InsuranceAWSHttpApiGateway
             Path: /api/v1/user
             Method: delete
+  InsuranceUpdateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: InsuranceUpdateUserFunction
+      Description: Function that updates a user
+      Policies:
+        - !If [CreateProdResources, !FindInMap [Environments, prod, LambdaBasePolicy], !FindInMap [Environments, dev, LambdaBasePolicy] ]
+      CodeUri: user/v1/update_user
+      Environment:
+        Variables:
+          DYNAMODB_USER_TABLE: !If [CreateProdResources, !FindInMap [Environments, prod, UserTable], !FindInMap [Environments, dev, UserTable]]
+      Events:
+        UpdateUserApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InsuranceAWSHttpApiGateway
+            Path: /api/v1/user
+            Method: put
 
 # PAYMENTS
   InsuranceCreatePaymentsFunction:

@@ -22,14 +22,14 @@ def lambda_handler(event, context):
                 response_body = {
                     "statusCode": 200,
                     "body": {
-                        "message": "user deleted"
+                        "message": "payment deleted"
                     }
                 }
             else:
                 response_body = {
                     "statusCode": 400,
                     "body": {
-                        "message": "missing id or email"
+                        "message": "missing id and email"
                     }
                 }
         except Exception as ex:

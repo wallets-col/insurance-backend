@@ -25,7 +25,7 @@ def lambda_handler(event, context):
                 'status': 'PENDING',
                 'insurer': payment['insurer'],
                 'amount': payment['amount'],
-                'issuedBy': payment['issuedBy'],
+                'brokerName': payment['brokerName'],
                 'brokerEmail': payment['brokerEmail'],
                 'status-date': f"PENDING-{get_date}",
                 'details': payment['details']

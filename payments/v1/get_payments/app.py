@@ -12,15 +12,37 @@ def lambda_handler(event, context):
         try:
             if 'email' in event['queryStringParameters'] and 'status-date' in event['queryStringParameters']:
                 email = event['queryStringParameters']['email']
-                status_date = event['queryStringParameters']['statusDate']
+                status_date = event['queryStringParameters']['status-date']
                 result = table.query(
                     Select = 'SPECIFIC_ATTRIBUTES',
+                    IndexName = 'email-status-date-index',
                     KeyConditionExpression = Key('email').eq(email) & Key('status-date').begins_with(status_date),
-                    ProjectionExpression = 'id, #date, amount, #status, issuedBy, details, dueDate, insurer, brokerEmail',
+                    ProjectionExpression = 'id, #date, amount, #status, brokerName, details, dueDate, insurer, brokerEmail',
                     ExpressionAttributeNames = {
                         "#date": "date",
                         "#status": "status"
                     },
+                )
+                response_body = {
+                    "statusCode": 200,
+                    "body": {
+                        "payments": result['Items']
+                    }
+                }
+            elif 'brokerEmail' in event['queryStringParameters'] and 'status-date' in event['queryStringParameters']:
+                email = event['queryStringParameters']['brokerEmail']
+                status_date = event['queryStringParameters']['status-date']
+                result = table.query(
+                    Select = 'SPECIFIC_ATTRIBUTES',
+                    IndexName = 'brokerEmail-status-date-index',
+                    KeyConditionExpression = Key('brokerEmail').eq(email) & Key('status-date').begins_with(status_date),
+                    ProjectionExpression = 'id, #date, amount, #status, brokerName, details, dueDate, insurer, #email, #name',
+                    ExpressionAttributeNames = {
+                        "#date": "date",
+                        "#status": "status",
+                        "#email": "email",
+                        "#name": "name"
+                    }
                 )
                 response_body = {
                     "statusCode": 200,

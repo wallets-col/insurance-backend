@@ -1,6 +1,5 @@
 import boto3
 import json
-from update_functions import update_user_code
 from update_functions import update_name
 
 def lambda_handler(event, context):
@@ -11,8 +10,6 @@ def lambda_handler(event, context):
             user = user['user']
             if "name" in user:
                 update_name(user)
-            if "userCode" in user:
-                update_user_code(user)
             response_body = {
                 "statusCode": 200,
                 "body": {

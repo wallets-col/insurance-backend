@@ -16,7 +16,7 @@ def lambda_handler(event, context):
                     Select = 'SPECIFIC_ATTRIBUTES',
                     IndexName = 'type-brokerId-index',
                     KeyConditionExpression = Key('type').eq('USER') & Key('brokerId').eq(broker_id),
-                    ProjectionExpression = '#type, brokerId, id, email, #name, creditCards, #status, phoneNumber,
+                    ProjectionExpression = '#type, brokerId, id, email, #name, creditCards, #status, phoneNumber',
                     ExpressionAttributeNames = {
                         "#name": "name",
                         "#status": "status",

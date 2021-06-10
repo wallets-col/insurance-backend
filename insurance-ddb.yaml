@@ -62,6 +62,8 @@ Resources:
       AttributeDefinitions:
         - AttributeName: "email"
           AttributeType: "S"
+        - AttributeName: "brokerEmail"
+          AttributeType: "S"
         - AttributeName: "id"
           AttributeType: "S"
         - AttributeName: "status-date"
@@ -86,11 +88,33 @@ Resources:
               - date
               - amount
               - status
-              - issuedBy
+              - brokerName
               - details
               - dueDate
               - insurer
               - brokerEmail
+          ProvisionedThroughput:
+            ReadCapacityUnits: 0
+            WriteCapacityUnits: 0
+        - IndexName: "brokerEmail-status-date-index"
+          KeySchema:
+            - AttributeName: "brokerEmail"
+              KeyType: "HASH"
+            - AttributeName: "status-date"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - id
+              - date
+              - amount
+              - status
+              - brokerName
+              - details
+              - dueDate
+              - insurer
+              - email
+              - name
           ProvisionedThroughput:
             ReadCapacityUnits: 0
             WriteCapacityUnits: 0
