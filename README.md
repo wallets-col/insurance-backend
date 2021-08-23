@@ -12,20 +12,6 @@
 
 `sam deploy --template-file template.yaml --region us-east-1 --s3-bucket sam-local-development --capabilities CAPABILITY_IAM --stack-name insurance-sam-dev --parameter-overrides EnvironmentValue=dev`
 
-## Endpoint para obtener el JWT
-
-`https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyA5ZoprVFXJssAJ7gAKNZWHJCuAaEHd0Ts`
-
-1. Registrarse manualmente en firebase en la sección de authentication
-2. Enviar en el body lo siguiente, por ejemplo
-
-```javascript
-{
-  "email":"jtuberquia07@outlook.com",
-  "password":"clave123.",
-  "returnSecureToken":true
-}
-```
 
 # Uso del API
 
